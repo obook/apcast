@@ -25,6 +25,7 @@ To do, in order:
 - [ ] Sound: AAC-ELD or ALAC over RTP
 - [ ] Reconnect after a loss; report reconnections and network drops to the menu
 - [ ] PIN entry in the menu and on the command line
+- [ ] Password, as at school: choose an Apple TV in the list, type its password once in a dialog, then never again for that Apple TV unless the password changes (ask again when it is refused). Keep one password per Apple TV id in `~/.config/apcast/`, readable by the user only; the desktop keyring (KWallet) could replace the file later
 - [ ] Test on a real receiver
 
 ## Menu
