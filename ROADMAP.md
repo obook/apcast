@@ -15,6 +15,7 @@ To do, in order:
 - [ ] Find a test receiver
 - [ ] Read the receiver's capabilities (`GET /info`) and log them
 - [ ] PIN pairing: SRP-6a with a PIN shown on the receiver, then an Ed25519 / X25519 verify step; keep the keys per receiver
+- [ ] Password: an Apple TV can ask for a password set in its settings before it accepts a stream (separate from the PIN, to check). Ask for it in the menu and with `--password`
 - [ ] Check whether the keys from the verify step are enough to encrypt the streams, before any work on the legacy key exchange
 - [ ] Legacy key exchange, only if the check above fails. Main risk: no public specification
 - [ ] Session setup: control, timing and data ports
