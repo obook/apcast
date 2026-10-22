@@ -38,9 +38,12 @@ To do:
 
 ## Packaging
 
+Done:
+
+- [x] First release, v0.1.0 (preview: list and info, no cast yet): .deb for KDE neon and Ubuntu 26.04
+
 To do:
 
-- [ ] First release: .deb for KDE neon and Ubuntu 26.04
 - [ ] Cast for one hour without a cut
 
 ## Links

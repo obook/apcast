@@ -7,8 +7,10 @@
 `apcast` mirrors a Linux desktop's screen and sound to an Apple TV on the
 local network.
 
-Work in progress: the receiver protocol is not written yet. A cast captures
-and encodes the screen, then drops the frames. See [ROADMAP.md](ROADMAP.md).
+Work in progress. `apcast list` finds the Apple TVs and `apcast info` shows
+how each one is set (model, screen, password or PIN asked). Casting is not
+written yet: a cast captures and encodes the screen, then drops the frames.
+See [ROADMAP.md](ROADMAP.md).
 
 ## Requirements
 
@@ -18,7 +20,21 @@ and encodes the screen, then drops the frames. See [ROADMAP.md](ROADMAP.md).
 - A Rust toolchain (`cargo`) 1.92 or newer, only to build from source.
 - The PC and the Apple TV on the same local network, with mDNS (UDP 5353).
 
-## Build
+## Install
+
+Download the `.deb` for your system from the
+[latest release](https://github.com/obook/apcast/releases/latest):
+
+- KDE neon: `apcast_<version>-1.neon_amd64.deb`
+- Ubuntu 26.04: `apcast_<version>-1.ubuntu26.04_amd64.deb`
+
+Then:
+
+```sh
+sudo apt install ./apcast_*_amd64.deb
+```
+
+## Build from source
 
 Debian, Ubuntu and derivatives (tested on KDE neon 24.04):
 
@@ -50,8 +66,8 @@ apcast cast --device "Room 104" # name or id from `apcast list`
 ![The apcast menu during a cast (the sender is not written yet)](media/menu.png)
 
 Each cast first opens the screen dialog. In a terminal, `apcast` alone, or
-`apcast cast` without `--device`, opens a menu: the receivers appear as they answer, and the
-command line options prefill the settings. Arrows move and change, Tab
+`apcast cast` without `--device`, opens a menu: the Apple TVs appear as they
+answer, and the command line options prefill the settings. Arrows move and change, Tab
 switches columns, Enter casts, `s` stops, `p` chooses another screen and
 moves the running cast to it, `q` or Ctrl+C quits.
 
