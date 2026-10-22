@@ -44,7 +44,7 @@ impl Menu {
         let title = Line::from(vec![
             Span::styled(" apcast ", Style::new().fg(Color::Black).bg(ACCENT).bold()),
             Span::raw("  "),
-            Span::styled("screen & sound to mirroring receivers", Style::new().fg(Color::Gray).italic()),
+            Span::styled("screen & sound to Apple TV", Style::new().fg(Color::Gray).italic()),
         ]);
         let (text, color) = match &self.status {
             Status::Info(m) => (m.as_str(), if self.casting.is_some() { Color::Green } else { Color::Yellow }),
@@ -88,12 +88,12 @@ impl Menu {
             let frame = SPINNER[self.tick % SPINNER.len()];
             items.push(ListItem::new(Span::styled(format!("{frame} searching..."), Style::new().fg(ACCENT))));
         } else if items.is_empty() {
-            items.push(ListItem::new(Span::styled("No receiver found. r: search again", Style::new().fg(Color::Yellow))));
+            items.push(ListItem::new(Span::styled("No Apple TV found. r: search again", Style::new().fg(Color::Yellow))));
         }
         let count = items.len();
         let title = match self.devices.len() {
-            0 => " Receivers ".to_string(),
-            n => format!(" Receivers ({n}) "),
+            0 => " Apple TVs ".to_string(),
+            n => format!(" Apple TVs ({n}) "),
         };
         let devices = List::new(items)
             .block(rounded(!self.on_settings).title(title))

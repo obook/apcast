@@ -32,7 +32,7 @@ fn alerts_follow_thresholds() {
 }
 
 fn device(id: &str, name: &str) -> CastDevice {
-    CastDevice { id: id.into(), name: name.into(), model: "Receiver".into(), ip: std::net::Ipv4Addr::LOCALHOST, port: 7000 }
+    CastDevice { id: id.into(), name: name.into(), model: "Apple TV 4K".into(), ip: std::net::Ipv4Addr::LOCALHOST, port: 7000 }
 }
 
 fn settings(bitrate: u32) -> Settings {
@@ -52,7 +52,7 @@ fn long_device_list_scrolls() {
     let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(80, 20)).unwrap();
     terminal.draw(|f| menu.draw(f, &s)).unwrap();
     let screen: String = terminal.backend().buffer().content().iter().map(|c| c.symbol()).collect();
-    assert!(screen.contains("Receivers (30)"));
+    assert!(screen.contains("Apple TVs (30)"));
     // The selected receiver is scrolled into view, and the scrollbar thumb is drawn.
     assert!(screen.contains("Room 25") && screen.contains('█'));
 }

@@ -46,6 +46,8 @@ apcast list                     # receivers on the network
 apcast cast --device "Room 104" # name or id from `apcast list`
 ```
 
+![The apcast menu during a cast (the sender is not written yet)](media/menu.png)
+
 Each cast first opens the screen dialog. In a terminal, `apcast` alone, or
 `apcast cast` without `--device`, opens a menu: the receivers appear as they answer, and the
 command line options prefill the settings. Arrows move and change, Tab
