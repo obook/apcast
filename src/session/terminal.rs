@@ -50,7 +50,7 @@ pub fn stop_flag() -> anyhow::Result<&'static AtomicBool> {
     static STOP: AtomicBool = AtomicBool::new(false);
     ctrlc::set_handler(|| {
         STOP.store(true, Ordering::SeqCst);
-        // A receiver that stops answering must not keep apcast running.
+        // A receiver that stops answering must not keep sacast running.
         // ponytail: exit skips destructors (the portal session closes with the process), add a timeout per call if that matters.
         std::thread::spawn(|| {
             std::thread::sleep(Duration::from_secs(5));

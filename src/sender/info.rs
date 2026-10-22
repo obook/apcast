@@ -1,6 +1,6 @@
 //! info.rs
 //! First exchange with a receiver: `GET /info` returns a binary plist with its name, model,
-//! version, screen and status flags. `apcast info` prints it; a cast logs it.
+//! version, screen and status flags. `sacast info` prints it; a cast logs it.
 //!
 //! Author: O. Booklage
 //! Date: October 2026
@@ -29,7 +29,7 @@ pub struct Info {
     pub screen: Option<(u64, u64)>,
 }
 
-/// Ask the receiver for its info. Returns the whole plist too, for `apcast info --raw`.
+/// Ask the receiver for its info. Returns the whole plist too, for `sacast info --raw`.
 pub fn fetch(rtsp: &mut Rtsp) -> anyhow::Result<(Info, Value)> {
     let body = rtsp.ok("GET", "/info", "", &[])?;
     let plist = Value::from_reader(Cursor::new(body)).context("the info answer is not a plist")?;

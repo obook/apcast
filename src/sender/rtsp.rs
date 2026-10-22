@@ -43,7 +43,7 @@ impl Rtsp {
         self.cseq += 1;
         let version = env!("CARGO_PKG_VERSION");
         let mut head = format!(
-            "{method} {path} RTSP/1.0\r\nCSeq: {}\r\nX-Apple-ProtocolVersion: 1\r\nUser-Agent: apcast/{version}\r\n",
+            "{method} {path} RTSP/1.0\r\nCSeq: {}\r\nX-Apple-ProtocolVersion: 1\r\nUser-Agent: sacast/{version}\r\n",
             self.cseq
         );
         if !body.is_empty() {

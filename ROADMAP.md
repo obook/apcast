@@ -1,6 +1,6 @@
 # Roadmap
 
-apcast started from sbcast: screen capture, menu and session are shared,
+sacast started from sbcast: screen capture, menu and session are shared,
 the receiver protocol is new.
 
 ## Receiver protocol
@@ -10,12 +10,12 @@ Done:
 - [x] Find receivers with mDNS (name, id, model)
 - [x] Stub sender: runs the capture and drops the frames, so the menu's stats work without a receiver
 - [x] Local test receiver: UxPlay (`uxplay -n Test -p`), open access
-- [x] Read the receiver's info (`GET /info`): `apcast info`, and logged at each cast. Checked on UxPlay
+- [x] Read the receiver's info (`GET /info`): `sacast info`, and logged at each cast. Checked on UxPlay
 - [x] When a receiver announces several addresses, pick the one on the PC's network (UxPlay also announced the Docker bridge address)
 
 To do, in order:
 
-- [ ] `apcast info` on an Apple TV at school: model, version, status flags (password)
+- [ ] `sacast info` on an Apple TV at school: model, version, status flags (password)
 - [ ] PIN pairing: SRP-6a with a PIN shown on the receiver, then an Ed25519 / X25519 verify step; keep the keys per receiver
 - [ ] Access modes an Apple TV can be set to, by hand or by device management (AirPlay Security payload): first-time passcode, passcode each time, or a known password shared by all the devices (the school's case: the password is known, it stays out of the repo). Find how each one shows in `/info` or the mDNS record, and which step takes the password (hypothesis: the pairing step, in place of the PIN). Ask for it in the menu and with `--password`
 - [ ] "Same Wi-Fi network only" access: check that it does not block a wired PC
@@ -27,7 +27,7 @@ To do, in order:
 - [ ] Sound: AAC-ELD or ALAC over RTP
 - [ ] Reconnect after a loss; report reconnections and network drops to the menu
 - [ ] PIN entry in the menu and on the command line
-- [ ] Password, as at school: choose an Apple TV in the list, type its password once in a dialog, then never again for that Apple TV unless the password changes (ask again when it is refused). Keep one password per Apple TV id in `~/.config/apcast/`, readable by the user only; the desktop keyring (KWallet) could replace the file later
+- [ ] Password, as at school: choose an Apple TV in the list, type its password once in a dialog, then never again for that Apple TV unless the password changes (ask again when it is refused). Keep one password per Apple TV id in `~/.config/sacast/`, readable by the user only; the desktop keyring (KWallet) could replace the file later
 - [ ] Test on a real receiver
 
 ## Menu

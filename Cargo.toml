@@ -1,6 +1,6 @@
 [package]
-name = "apcast"
-version = "0.1.0"
+name = "sacast"
+version = "0.1.1"
 edition = "2021"
 # Set by gstreamer 0.25. Resolver 3 picks dependency versions that build with it.
 rust-version = "1.92"
@@ -8,7 +8,7 @@ resolver = "3"
 license = "MIT"
 authors = ["Olivier Booklage <olivier.booklage@ac-bordeaux.fr>"]
 description = "Cast your Linux desktop to a screen mirroring receiver"
-repository = "https://github.com/obook/apcast"
+repository = "https://github.com/obook/sacast"
 
 [dependencies]
 anyhow = "1.0.104"
@@ -36,8 +36,8 @@ maintainer = "Olivier Booklage <olivier.booklage@ac-bordeaux.fr>"
 section = "video"
 depends = "$auto, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav, gstreamer1.0-pipewire, xdg-desktop-portal"
 recommends = "pipewire-pulse"
-extended-description = "apcast casts the screen and sound of a Wayland desktop to a screen mirroring receiver."
+extended-description = "sacast casts the screen and sound of a Wayland desktop to a screen mirroring receiver."
 assets = [
-    ["target/release/apcast", "usr/bin/", "755"],
-    ["README.md", "usr/share/doc/apcast/", "644"],
+    ["target/release/sacast", "usr/bin/", "755"],
+    ["README.md", "usr/share/doc/sacast/", "644"],
 ]

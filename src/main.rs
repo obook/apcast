@@ -1,5 +1,5 @@
 //! main.rs
-//! apcast: cast the screen and sound of a Linux Wayland desktop to a screen mirroring receiver.
+//! sacast: cast the screen and sound of a Linux Wayland desktop to a screen mirroring receiver.
 //! This file sets up the log, reads the command line and runs the command:
 //!   capture/ (PC side), device/ (finding receivers), sender/ (the receiver protocol, a stub
 //!   for now), menu/ (terminal interface), session/ (how a cast runs).
@@ -29,7 +29,7 @@ static MENU_LOG: std::sync::OnceLock<std::fs::File> = std::sync::OnceLock::new()
 
 /// Menu log, on the per-user tmpfs (private, cleared at logout).
 fn log_path() -> std::path::PathBuf {
-    std::env::var_os("XDG_RUNTIME_DIR").map_or_else(std::env::temp_dir, Into::into).join("apcast.log")
+    std::env::var_os("XDG_RUNTIME_DIR").map_or_else(std::env::temp_dir, Into::into).join("sacast.log")
 }
 
 fn main() -> anyhow::Result<()> {
@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
     // so a problem seen in the menu can be read afterwards.
     let verbose = std::env::var_os("RUST_LOG").is_some();
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("apcast=info")))
+        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("sacast=info")))
         .with_ansi(false)
         .with_writer(move || -> Box<dyn Write> {
             if let Some(file) = MENU_LOG.get() {
@@ -50,8 +50,8 @@ fn main() -> anyhow::Result<()> {
         })
         .init();
 
-    // `apcast` alone opens the cast menu.
-    let cli = if std::env::args_os().len() == 1 { Cli::parse_from(["apcast", "cast"]) } else { Cli::parse() };
+    // `sacast` alone opens the cast menu.
+    let cli = if std::env::args_os().len() == 1 { Cli::parse_from(["sacast", "cast"]) } else { Cli::parse() };
     match cli.command {
         Command::List { timeout } => {
             let devices = spin(session::SEARCHING, || device::discovery::discover(Duration::from_secs(timeout)))?;

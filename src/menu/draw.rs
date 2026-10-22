@@ -42,7 +42,7 @@ impl Menu {
 
     fn draw_header(&self, f: &mut Frame, area: ratatui::layout::Rect) {
         let title = Line::from(vec![
-            Span::styled(" apcast ", Style::new().fg(Color::Black).bg(ACCENT).bold()),
+            Span::styled(" sacast", Style::new().fg(Color::Black).bg(ACCENT).bold()),
             Span::raw("  "),
             Span::styled("screen & sound to Apple TV", Style::new().fg(Color::Gray).italic()),
         ]);

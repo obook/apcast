@@ -74,25 +74,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
-name = "apcast"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "ashpd",
- "clap",
- "ctrlc",
- "gstreamer",
- "libc",
- "mdns-sd",
- "plist",
- "ratatui",
- "tempfile",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1771,6 +1752,25 @@ name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+
+[[package]]
+name = "sacast"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "ashpd",
+ "clap",
+ "ctrlc",
+ "gstreamer",
+ "libc",
+ "mdns-sd",
+ "plist",
+ "ratatui",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "scopeguard"

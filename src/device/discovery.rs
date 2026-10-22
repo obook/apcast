@@ -1,5 +1,5 @@
 //! discovery.rs
-//! Find the receivers on the local network with mDNS. Used by `apcast list`, by `--device`
+//! Find the receivers on the local network with mDNS. Used by `sacast list`, by `--device`
 //! and by the menu's list.
 //!
 //! Author: O. Booklage

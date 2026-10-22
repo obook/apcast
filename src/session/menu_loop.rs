@@ -35,7 +35,7 @@ pub fn run_menu(mut settings: menu::Settings) -> anyhow::Result<()> {
     // Not restore(): its eprintln! panics when the terminal was closed.
     let _ = ratatui::try_restore();
     run.unwrap_or_else(|panic| {
-        let _ = writeln!(std::io::stderr(), "apcast stopped on an internal error: see {}", crate::log_path().display());
+        let _ = writeln!(std::io::stderr(), "sacast stopped on an internal error: see {}", crate::log_path().display());
         std::panic::resume_unwind(panic)
     })
 }

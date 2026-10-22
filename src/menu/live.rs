@@ -28,7 +28,7 @@ pub(super) struct Live {
     pub(super) served: Option<(ByteCounter, Option<(u64, Instant)>)>,
     /// kbit/s, one sample per second, last minute.
     pub(super) bitrate: Vec<u64>,
-    /// apcast's CPU time in clock ticks, and when it was read.
+    /// sacast's CPU time in clock ticks, and when it was read.
     cpu_ticks: Option<(u64, Instant)>,
     /// Percent of one core.
     pub(super) cpu: f64,

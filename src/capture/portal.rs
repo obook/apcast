@@ -28,7 +28,7 @@ fn runtime() -> &'static Runtime {
 pub struct ScreenCast {
     pub node_id: u32,
     fd: OwnedFd,
-    /// Streams the portal gave; apcast casts the first one.
+    /// Streams the portal gave; sacast casts the first one.
     streams: usize,
     session: Session<Screencast>,
 }
@@ -85,7 +85,7 @@ impl ScreenCast {
 }
 
 /// Close a portal session: ashpd sessions stay open until closed, and the desktop keeps
-/// sharing. At most 2 s: a portal that does not answer must not hang apcast.
+/// sharing. At most 2 s: a portal that does not answer must not hang sacast.
 async fn close<T: ashpd::desktop::SessionPortal>(session: &Session<T>, what: &str) {
     match tokio::time::timeout(std::time::Duration::from_secs(2), session.close()).await {
         Ok(Ok(())) => tracing::info!(what, "portal session closed"),

@@ -10,7 +10,7 @@ use clap::{Args, Parser, Subcommand};
 
 /// Cast the Linux desktop to a screen mirroring receiver.
 #[derive(Parser)]
-#[command(name = "apcast", version, about)]
+#[command(name = "sacast", version, about)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,

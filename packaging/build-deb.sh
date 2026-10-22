@@ -1,9 +1,9 @@
 #!/bin/sh
 #
 # Name: build-deb.sh
-# Description: Build the apcast .deb for one target inside an Ubuntu container.
+# Description: Build the sacast .deb for one target inside an Ubuntu container.
 # Usage: packaging/build-deb.sh neon|ubuntu26.04
-# Output: target/debian/apcast_<version>-1.<target>_amd64.deb
+# Output: target/debian/sacast_<version>-1.<target>_amd64.deb
 # Author: O. Booklage
 # Date: October 2026
 # Licence: MIT
@@ -33,7 +33,7 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-image="apcast-build:$release"
+image="sacast-build:$release"
 cd "$(dirname "$0")/.."
 
 # Rust from rustup: the distribution's rustc can be older than the crates require.
