@@ -32,6 +32,11 @@ To do, in order:
 
 ## Menu
 
+Done:
+
+- [x] Audio delay in 50 ms steps, from -500 to 1500 ms (negative: the image waits), applied at the next cast: changed live, it froze the image in sccast
+- [x] Name a missing GStreamer element and its package at start
+
 To do:
 
 - [ ] Tune the alert thresholds on a real receiver and the school network

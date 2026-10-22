@@ -38,9 +38,6 @@ pub fn cast(receiver: SocketAddr, name: &str, s: &Settings, screen: &ScreenCast,
     let counted = Arc::clone(&bytes);
     out.send(Status::Served(Box::new(move || counted.load(Ordering::Relaxed))));
     out.send(Status::Dropped(Arc::clone(&capture.dropped)));
-    if let Some(pad) = capture.audio_pad() {
-        out.send(Status::AudioPad(pad));
-    }
     while !stop.load(Ordering::SeqCst) {
         // Timed pull: the stop flag is checked at least every 100 ms.
         if let Some(sample) = sink.emit_by_name::<Option<gst::Sample>>("try-pull-sample", &[&100_000_000u64]) {

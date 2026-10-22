@@ -77,7 +77,7 @@ moves the running cast to it, `q` or Ctrl+C quits.
 | `--fps N` | `30` | Frame rate |
 | `--bitrate KBPS` | `2500` | Video bitrate in kbit/s |
 | `--no-audio` | | Video only |
-| `--audio-delay MS` | `0` | Delays the sound. The menu changes it during a cast |
+| `--audio-delay MS` | `0` | Delays the sound, or the image when negative. Changed in the menu (50 ms steps), it applies at the next cast |
 
 ## Troubleshooting
 
