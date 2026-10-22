@@ -63,6 +63,16 @@ fn main() -> anyhow::Result<()> {
             }
             Ok(())
         }
+        Command::Info { device, raw } => {
+            let device = pick_device(device.as_deref())?;
+            let (info, plist) = sender::info::fetch(std::net::SocketAddr::from((device.ip, device.port)))?;
+            println!("{info}");
+            if raw {
+                plist.to_writer_xml(std::io::stdout())?;
+                println!();
+            }
+            Ok(())
+        }
         Command::Cast { device, audio_delay, stream } => {
             let settings = menu::Settings { stream, audio_delay };
             // In a terminal without --device, the menu picks the receiver and runs the casts.

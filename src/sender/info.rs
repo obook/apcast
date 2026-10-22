@@ -1,0 +1,144 @@
+//! info.rs
+//! First exchange with a receiver: `GET /info` returns a binary plist with its name, model,
+//! version, screen and status flags. `apcast info` prints it; a cast logs it.
+//!
+//! Author: O. Booklage
+//! Date: October 2026
+//! Licence: MIT
+
+use std::fmt;
+use std::io::{BufRead, BufReader, Cursor, Write};
+use std::net::{SocketAddr, TcpStream};
+use std::time::Duration;
+
+use anyhow::{bail, Context};
+use plist::Value;
+
+const TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Status flag bits, from the unofficial protocol specification; unverified on an Apple TV.
+const FLAGS: [(u64, &str); 3] = [(0x8, "PIN required"), (0x80, "password required"), (0x200, "one-time pairing required")];
+
+/// What the receiver says about itself. A field the answer leaves out stays None.
+#[derive(Debug, Default, PartialEq)]
+pub struct Info {
+    pub name: Option<String>,
+    pub model: Option<String>,
+    pub source_version: Option<String>,
+    pub features: Option<u64>,
+    pub status_flags: Option<u64>,
+    /// Width and height of the receiver's first display.
+    pub screen: Option<(u64, u64)>,
+}
+
+/// Connect to the receiver's control port. UxPlay (the test receiver) serves on the port
+/// below the one it announces (seen 2026-10-22): that one is tried when the first refuses.
+/// ponytail: a guess on the port, browse `_raop._tcp` for the real one if a receiver needs it.
+pub fn connect(receiver: SocketAddr) -> anyhow::Result<TcpStream> {
+    let below = SocketAddr::new(receiver.ip(), receiver.port().saturating_sub(1));
+    let stream = TcpStream::connect_timeout(&receiver, TIMEOUT)
+        .or_else(|e| if e.kind() == std::io::ErrorKind::ConnectionRefused { TcpStream::connect_timeout(&below, TIMEOUT) } else { Err(e) })
+        .with_context(|| format!("cannot reach {receiver}"))?;
+    stream.set_read_timeout(Some(TIMEOUT))?;
+    Ok(stream)
+}
+
+/// Ask `receiver` for its info. Returns the whole plist too, for `apcast info --raw`.
+pub fn fetch(receiver: SocketAddr) -> anyhow::Result<(Info, Value)> {
+    let mut stream = connect(receiver)?;
+    let version = env!("CARGO_PKG_VERSION");
+    write!(stream, "GET /info RTSP/1.0\r\nCSeq: 1\r\nX-Apple-ProtocolVersion: 1\r\nUser-Agent: apcast/{version}\r\n\r\n")?;
+    let body = read_response(BufReader::new(stream))?;
+    let plist = Value::from_reader(Cursor::new(body)).context("the info answer is not a plist")?;
+    Ok((Info::from_plist(&plist)?, plist))
+}
+
+/// Body of an RTSP response, once its status is 200.
+fn read_response(mut reader: impl BufRead) -> anyhow::Result<Vec<u8>> {
+    let mut line = String::new();
+    reader.read_line(&mut line)?;
+    if line.split_whitespace().nth(1) != Some("200") {
+        bail!("the receiver answered {:?}", line.trim());
+    }
+    let mut length = 0;
+    loop {
+        line.clear();
+        if reader.read_line(&mut line)? == 0 || line.trim().is_empty() {
+            break;
+        }
+        if let Some((key, value)) = line.split_once(':') {
+            if key.trim().eq_ignore_ascii_case("content-length") {
+                length = value.trim().parse().context("bad Content-Length")?;
+            }
+        }
+    }
+    let mut body = vec![0; length];
+    reader.read_exact(&mut body)?;
+    Ok(body)
+}
+
+impl Info {
+    fn from_plist(plist: &Value) -> anyhow::Result<Self> {
+        let dict = plist.as_dictionary().context("the info answer is not a dictionary")?;
+        let text = |key| dict.get(key).and_then(Value::as_string).map(str::to_string);
+        let number = |key| dict.get(key).and_then(Value::as_unsigned_integer);
+        let first_display = dict.get("displays").and_then(Value::as_array).and_then(|d| d.first()).and_then(Value::as_dictionary);
+        let screen = first_display.and_then(|d| Some((d.get("width")?.as_unsigned_integer()?, d.get("height")?.as_unsigned_integer()?)));
+        Ok(Self {
+            name: text("name"),
+            model: text("model"),
+            source_version: text("sourceVersion"),
+            features: number("features"),
+            status_flags: number("statusFlags"),
+            screen,
+        })
+    }
+
+    /// Access the status flags ask for, by name. Empty when none, or no flags given.
+    pub fn access(&self) -> Vec<&'static str> {
+        let flags = self.status_flags.unwrap_or(0);
+        FLAGS.iter().filter(|(bit, _)| flags & bit != 0).map(|(_, name)| *name).collect()
+    }
+}
+
+impl fmt::Display for Info {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let show = |v: &Option<String>| v.clone().unwrap_or_else(|| "-".into());
+        writeln!(f, "name\t{}", show(&self.name))?;
+        writeln!(f, "model\t{}", show(&self.model))?;
+        writeln!(f, "version\t{}", show(&self.source_version))?;
+        writeln!(f, "screen\t{}", self.screen.map_or("-".into(), |(w, h)| format!("{w}x{h}")))?;
+        writeln!(f, "features\t{}", self.features.map_or("-".into(), |v| format!("{v:#x}")))?;
+        writeln!(f, "flags\t{}", self.status_flags.map_or("-".into(), |v| format!("{v:#x}")))?;
+        let access = self.access();
+        write!(f, "access\t{}", if access.is_empty() { "open".to_string() } else { access.join(", ") })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reads_an_info_answer() {
+        let mut display = plist::Dictionary::new();
+        display.insert("width".into(), 1920.into());
+        display.insert("height".into(), 1080.into());
+        let mut dict = plist::Dictionary::new();
+        dict.insert("name".into(), "Salle 104".into());
+        dict.insert("model".into(), "AppleTV6,2".into());
+        dict.insert("statusFlags".into(), 0x84.into());
+        dict.insert("displays".into(), Value::Array(vec![display.into()]));
+        let mut body = Vec::new();
+        plist::to_writer_binary(&mut body, &Value::from(dict)).unwrap();
+        let mut answer = format!("RTSP/1.0 200 OK\r\nCSeq: 1\r\nContent-Length: {}\r\n\r\n", body.len()).into_bytes();
+        answer.extend(&body);
+
+        let read = read_response(Cursor::new(answer)).unwrap();
+        let info = Info::from_plist(&Value::from_reader(Cursor::new(read)).unwrap()).unwrap();
+        assert_eq!(info.name.as_deref(), Some("Salle 104"));
+        assert_eq!(info.screen, Some((1920, 1080)));
+        assert_eq!(info.access(), ["password required"]);
+        assert!(read_response(Cursor::new(b"RTSP/1.0 403 Forbidden\r\n\r\n".to_vec())).is_err());
+    }
+}

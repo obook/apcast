@@ -24,6 +24,15 @@ pub enum Command {
         #[arg(long, default_value_t = 8)]
         timeout: u64,
     },
+    /// Show what a receiver says about itself: model, version, screen, access it asks for.
+    Info {
+        /// Receiver name or id. Without it, choose from a list.
+        #[arg(long)]
+        device: Option<String>,
+        /// Print the whole answer, as XML.
+        #[arg(long)]
+        raw: bool,
+    },
     /// Cast the screen to a receiver.
     Cast {
         /// Receiver name or id. Without it, choose from a list.

@@ -43,6 +43,7 @@ The binary is `target/release/apcast`. `packaging/build-deb.sh neon` or
 ```sh
 apcast                          # menu: receivers, presets and settings
 apcast list                     # receivers on the network
+apcast info --device "Room 104" # model, version, screen, password or PIN asked
 apcast cast --device "Room 104" # name or id from `apcast list`
 ```
 

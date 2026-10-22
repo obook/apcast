@@ -9,11 +9,13 @@ Done:
 
 - [x] Find receivers with mDNS (name, id, model)
 - [x] Stub sender: runs the capture and drops the frames, so the menu's stats work without a receiver
+- [x] Local test receiver: UxPlay (`uxplay -n Test -p`), open access
+- [x] Read the receiver's info (`GET /info`): `apcast info`, and logged at each cast. Checked on UxPlay
 
 To do, in order:
 
-- [ ] Find a test receiver
-- [ ] Read the receiver's capabilities (`GET /info`) and log them
+- [ ] `apcast info` on an Apple TV at school: model, version, status flags (password)
+- [ ] When a receiver announces several addresses, pick the one on the PC's network (UxPlay was seen on the Docker bridge address first)
 - [ ] PIN pairing: SRP-6a with a PIN shown on the receiver, then an Ed25519 / X25519 verify step; keep the keys per receiver
 - [ ] Access modes an Apple TV can be set to, by hand or by device management (AirPlay Security payload): first-time passcode, passcode each time, or a known password shared by all the devices (the school's case: the password is known, it stays out of the repo). Find how each one shows in `/info` or the mDNS record, and which step takes the password (hypothesis: the pairing step, in place of the PIN). Ask for it in the menu and with `--password`
 - [ ] "Same Wi-Fi network only" access: check that it does not block a wired PC

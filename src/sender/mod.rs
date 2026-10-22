@@ -1,7 +1,7 @@
 //! sender/
-//! The receiver protocol. Not written yet: see ROADMAP.md.
-//! Until then, a cast runs the capture and drops its frames, so the menu's stats (bitrate,
-//! lost frames, CPU) can be checked on the PC alone.
+//! The receiver protocol, step by step (ROADMAP.md). Done: the receiver's info (info.rs).
+//! Until the stream is written, a cast logs that info, runs the capture and drops its frames,
+//! so the menu's stats (bitrate, lost frames, CPU) can be checked on the PC alone.
 //!
 //! Author: O. Booklage
 //! Date: October 2026
@@ -19,10 +19,16 @@ use crate::capture::{Capture, ScreenCast};
 use crate::menu::{Settings, Status};
 use crate::session::Out;
 
+pub mod info;
+
 pub const NOT_WRITTEN: &str = "the receiver protocol is not written yet: frames are captured, then dropped";
 
 /// Capture `screen` until `stop`, as a real cast to `receiver` would.
 pub fn cast(receiver: SocketAddr, name: &str, s: &Settings, screen: &ScreenCast, stop: &AtomicBool, out: &Out) -> anyhow::Result<()> {
+    match info::fetch(receiver) {
+        Ok((info, _)) => tracing::info!(%receiver, ?info, access = ?info.access(), "receiver info"),
+        Err(e) => tracing::warn!(%receiver, "no receiver info: {e:#}"),
+    }
     tracing::warn!(%receiver, name, NOT_WRITTEN);
     out.say(&format!("{name}: {NOT_WRITTEN}"));
     let capture = Capture::start(screen, &s.stream, s.audio_delay)?;

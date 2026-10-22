@@ -20,6 +20,7 @@ gstreamer = "0.25.4"
 # while the menu owns the terminal.
 libc = "0.2.190"
 mdns-sd = "0.21.5"
+plist = "1.10.3"
 ratatui = "0.30.2"
 tokio = { version = "1.54.0", features = ["rt", "net", "time"] }
 tracing = "0.1.44"
