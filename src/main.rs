@@ -65,7 +65,8 @@ fn main() -> anyhow::Result<()> {
         }
         Command::Info { device, raw } => {
             let device = pick_device(device.as_deref())?;
-            let (info, plist) = sender::info::fetch(std::net::SocketAddr::from((device.ip, device.port)))?;
+            let mut rtsp = sender::rtsp::Rtsp::connect(std::net::SocketAddr::from((device.ip, device.port)))?;
+            let (info, plist) = sender::info::fetch(&mut rtsp)?;
             println!("{info}");
             if raw {
                 plist.to_writer_xml(std::io::stdout())?;

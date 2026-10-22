@@ -7,14 +7,12 @@
 //! Licence: MIT
 
 use std::fmt;
-use std::io::{BufRead, BufReader, Cursor, Write};
-use std::net::{SocketAddr, TcpStream};
-use std::time::Duration;
+use std::io::Cursor;
 
-use anyhow::{bail, Context};
+use anyhow::Context;
 use plist::Value;
 
-const TIMEOUT: Duration = Duration::from_secs(5);
+use super::rtsp::Rtsp;
 
 /// Status flag bits, from the unofficial protocol specification; unverified on an Apple TV.
 const FLAGS: [(u64, &str); 3] = [(0x8, "PIN required"), (0x80, "password required"), (0x200, "one-time pairing required")];
@@ -31,50 +29,11 @@ pub struct Info {
     pub screen: Option<(u64, u64)>,
 }
 
-/// Connect to the receiver's control port. UxPlay (the test receiver) serves on the port
-/// below the one it announces (seen 2026-10-22): that one is tried when the first refuses.
-/// ponytail: a guess on the port, browse `_raop._tcp` for the real one if a receiver needs it.
-pub fn connect(receiver: SocketAddr) -> anyhow::Result<TcpStream> {
-    let below = SocketAddr::new(receiver.ip(), receiver.port().saturating_sub(1));
-    let stream = TcpStream::connect_timeout(&receiver, TIMEOUT)
-        .or_else(|e| if e.kind() == std::io::ErrorKind::ConnectionRefused { TcpStream::connect_timeout(&below, TIMEOUT) } else { Err(e) })
-        .with_context(|| format!("cannot reach {receiver}"))?;
-    stream.set_read_timeout(Some(TIMEOUT))?;
-    Ok(stream)
-}
-
-/// Ask `receiver` for its info. Returns the whole plist too, for `apcast info --raw`.
-pub fn fetch(receiver: SocketAddr) -> anyhow::Result<(Info, Value)> {
-    let mut stream = connect(receiver)?;
-    let version = env!("CARGO_PKG_VERSION");
-    write!(stream, "GET /info RTSP/1.0\r\nCSeq: 1\r\nX-Apple-ProtocolVersion: 1\r\nUser-Agent: apcast/{version}\r\n\r\n")?;
-    let body = read_response(BufReader::new(stream))?;
+/// Ask the receiver for its info. Returns the whole plist too, for `apcast info --raw`.
+pub fn fetch(rtsp: &mut Rtsp) -> anyhow::Result<(Info, Value)> {
+    let body = rtsp.ok("GET", "/info", "", &[])?;
     let plist = Value::from_reader(Cursor::new(body)).context("the info answer is not a plist")?;
     Ok((Info::from_plist(&plist)?, plist))
-}
-
-/// Body of an RTSP response, once its status is 200.
-fn read_response(mut reader: impl BufRead) -> anyhow::Result<Vec<u8>> {
-    let mut line = String::new();
-    reader.read_line(&mut line)?;
-    if line.split_whitespace().nth(1) != Some("200") {
-        bail!("the receiver answered {:?}", line.trim());
-    }
-    let mut length = 0;
-    loop {
-        line.clear();
-        if reader.read_line(&mut line)? == 0 || line.trim().is_empty() {
-            break;
-        }
-        if let Some((key, value)) = line.split_once(':') {
-            if key.trim().eq_ignore_ascii_case("content-length") {
-                length = value.trim().parse().context("bad Content-Length")?;
-            }
-        }
-    }
-    let mut body = vec![0; length];
-    reader.read_exact(&mut body)?;
-    Ok(body)
 }
 
 impl Info {
@@ -131,14 +90,10 @@ mod tests {
         dict.insert("displays".into(), Value::Array(vec![display.into()]));
         let mut body = Vec::new();
         plist::to_writer_binary(&mut body, &Value::from(dict)).unwrap();
-        let mut answer = format!("RTSP/1.0 200 OK\r\nCSeq: 1\r\nContent-Length: {}\r\n\r\n", body.len()).into_bytes();
-        answer.extend(&body);
 
-        let read = read_response(Cursor::new(answer)).unwrap();
-        let info = Info::from_plist(&Value::from_reader(Cursor::new(read)).unwrap()).unwrap();
+        let info = Info::from_plist(&Value::from_reader(Cursor::new(body)).unwrap()).unwrap();
         assert_eq!(info.name.as_deref(), Some("Salle 104"));
         assert_eq!(info.screen, Some((1920, 1080)));
         assert_eq!(info.access(), ["password required"]);
-        assert!(read_response(Cursor::new(b"RTSP/1.0 403 Forbidden\r\n\r\n".to_vec())).is_err());
     }
 }

@@ -20,12 +20,13 @@ use crate::menu::{Settings, Status};
 use crate::session::Out;
 
 pub mod info;
+pub mod rtsp;
 
 pub const NOT_WRITTEN: &str = "the receiver protocol is not written yet: frames are captured, then dropped";
 
 /// Capture `screen` until `stop`, as a real cast to `receiver` would.
 pub fn cast(receiver: SocketAddr, name: &str, s: &Settings, screen: &ScreenCast, stop: &AtomicBool, out: &Out) -> anyhow::Result<()> {
-    match info::fetch(receiver) {
+    match rtsp::Rtsp::connect(receiver).and_then(|mut rtsp| info::fetch(&mut rtsp)) {
         Ok((info, _)) => tracing::info!(%receiver, ?info, access = ?info.access(), "receiver info"),
         Err(e) => tracing::warn!(%receiver, "no receiver info: {e:#}"),
     }
