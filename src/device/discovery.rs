@@ -29,7 +29,8 @@ impl CastDevice {
     fn from_service(info: &ResolvedService) -> Option<Self> {
         let txt = |key: &str| info.get_property_val_str(key).map(|v| v.trim().to_string()).filter(|v| !v.is_empty());
         let instance = info.get_fullname().strip_suffix(SERVICE_TYPE).map(|n| n.trim_end_matches('.'));
-        Self::from_txt(txt, instance, info.get_addresses_v4().into_iter().next(), info.get_port())
+        let ip = pick_address(info.get_addresses_v4().into_iter().collect(), local_address());
+        Self::from_txt(txt, instance, ip, info.get_port())
     }
 
     /// Receiver from its TXT record, its instance name, its address (A record) and its SRV port.
@@ -41,6 +42,26 @@ impl CastDevice {
         let model = txt("model").unwrap_or_else(|| "Receiver".into());
         Some(Self { id, name, model, ip, port })
     }
+}
+
+/// The PC's address on its network: the one a packet to the Internet would leave from.
+/// Nothing is sent, connecting a UDP socket only picks the route.
+fn local_address() -> Option<Ipv4Addr> {
+    let socket = std::net::UdpSocket::bind("0.0.0.0:0").ok()?;
+    socket.connect("192.0.2.1:9").ok()?;
+    match socket.local_addr().ok()?.ip() {
+        std::net::IpAddr::V4(ip) => Some(ip),
+        std::net::IpAddr::V6(_) => None,
+    }
+}
+
+/// Of the addresses a receiver announces, the one on the PC's /24, else the lowest one.
+/// UxPlay on this PC announced the Docker bridge address too, which a school PC cannot use.
+/// ponytail: a /24 guess, read the interfaces' real masks if a school network is wider.
+fn pick_address(mut addresses: Vec<Ipv4Addr>, local: Option<Ipv4Addr>) -> Option<Ipv4Addr> {
+    addresses.sort();
+    let same_network = |ip: &&Ipv4Addr| local.is_some_and(|local| ip.octets()[..3] == local.octets()[..3]);
+    addresses.iter().find(same_network).or(addresses.first()).copied()
 }
 
 /// Browse the network for `timeout` and return the receivers found, sorted by name.
@@ -136,5 +157,15 @@ mod tests {
         let bare = CastDevice::from_txt(|_| None, None, Some(Ipv4Addr::new(10, 0, 0, 8)), 7000).unwrap();
         assert_eq!((bare.name.as_str(), bare.id.as_str(), bare.model.as_str()), ("10.0.0.8", "10.0.0.8:7000", "Receiver"));
         assert!(CastDevice::from_txt(|_| None, None, None, 7000).is_none());
+    }
+
+    #[test]
+    fn picks_the_address_on_the_pc_network() {
+        let (docker, lan) = (Ipv4Addr::new(172, 17, 0, 1), Ipv4Addr::new(192, 168, 33, 112));
+        let local = Some(Ipv4Addr::new(192, 168, 33, 20));
+        assert_eq!(pick_address(vec![docker, lan], local), Some(lan));
+        // Nothing on the PC's network: the lowest address, the same at every browse.
+        assert_eq!(pick_address(vec![lan, docker], Some(Ipv4Addr::new(10, 0, 0, 5))), Some(docker));
+        assert_eq!(pick_address(vec![], local), None);
     }
 }
