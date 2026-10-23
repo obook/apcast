@@ -3,9 +3,10 @@
 # sacast
 
 > [!NOTE]
-> Same family:
+> Cast family:
 > - <img src="https://raw.githubusercontent.com/obook/sccast/main/media/icon.svg" alt="" width="20"> [sccast](https://github.com/obook/sccast) for Chromecast
 > - <img src="https://raw.githubusercontent.com/obook/sbcast/main/media/icon.svg" alt="" width="20"> [sbcast](https://github.com/obook/sbcast) for interactive panels (screenshare)
+> - <img src="https://raw.githubusercontent.com/obook/sacast/main/media/icon.svg" alt="" width="20"> [sacast](https://github.com/obook/sacast) for Apple TV
 
 `sacast` mirrors a Linux desktop's screen and sound to an Apple TV on the
 local network.
